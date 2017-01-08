@@ -1,5 +1,6 @@
-from blacklist import blacklist
+from blacklist import load_blacklist
 import re
+
 
 def check_register(password):
     # the use of both upper-case and lower-case letters (case sensitivity)
@@ -15,7 +16,7 @@ def check_numbers(password):
         unicnumber_of_digit = len(set([x for x in password if x.isdigit()]))
         if unicnumber_of_digit >= 3:
             return 2
-        elif unicnumber_of_digit in [1, 2]:
+        else:
             return 1
     return 0
 
@@ -36,19 +37,17 @@ def find_in_blacklist(password, blacklist):
         return 1
 
 
-def check_len(password):
-    # also, the evaluation of the uniqueness
-    if len(password) >= 12 and len(set([x for x in password])) >= 6:
+def check_len_and_uniqueness(password):
+    if len(password) >= 12 and len(set(password)) >= 6:
         return 2
-    elif len(password) and len(set([x for x in password])) >= 3:
+    elif len(password) >= 6 and len(set(password)) >= 3:
         return 1
     else:
         return 0
 
 
 def check_letters(password):
-    # also, the evaluation of the digit uniqueness
-    if not password.isalpha() and len(set([x for x in password if x.isdigit()])) > 3:
+    if not password.isalpha() and len(set([x for x in password if x.isdigit()])) > 1:
         return 1
     else:
         return 0
@@ -73,8 +72,8 @@ def get_password_strength(password):
     strength += check_register(password)
     strength += check_numbers(password)
     strength += check_special_characters(password)
-    strength += find_in_blacklist(password, blacklist)
-    strength += check_len(password)
+    strength += find_in_blacklist(password, load_blacklist())
+    strength += check_len_and_uniqueness(password)
     strength += check_letters(password)
     strength += check_personal_info(password)
     return strength
